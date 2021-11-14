@@ -1,6 +1,8 @@
 
 # Node FTP Server
 
+Тестовое задание: написать ftp сервер на nodejs с логированием некоторых событий.
+
 Сборка и запуск:
 ```
 docker build -t ftp-srv-node .
