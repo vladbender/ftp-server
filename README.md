@@ -1,37 +1,28 @@
 
 # Node FTP Server
 
-Тестовое задание: написать ftp сервер на nodejs с логированием некоторых событий.
+Test task: write ftp server on Node.js with logging some events.
 
-Сборка и запуск:
-```
+Build and run:
+```bash
 docker build -t ftp-srv-node .
-docker run -d --network host -v <local_folder>:/app/files ftp-srv-node
+docker run -d --network host -v <local_directory>:/app/files ftp-srv-node
 ```
 
-FTP сервер будет запущен на порту, указанному в файле конфигурации.
+The FTP server will be run on port provided in .env file.
 
-`<local_folder>` - директория хоста для хранения файлов. При этом можно запустить контейнер без параметра `-v`. Тогда файлы будут
-храниться внутри контейнера.
+`<local_directory>` - host directory, which is used for keeping files. You can run a container without the -v parameter. In that case, files will be saved inside the container.
 
-Описание файла конфигурации `.env`:
-- `HOST` - хост сервера.
-- `PORT` - порт, на котором требуется запустить сервер.
-- `ALLOW_ANONYMOUS` - допускать ли анонимный логин. Если указано `TRUE`, то доступ будет разрешен
-для любых пользователей. Если указано `FALSE`, то следует передать параметр `USERS_FILE_PATH`.
-- `USERS_FILE_PATH` - файл с логинами и паролями пользователей в описанном формате (файл, где каждая строка
-username:password). Сейчас указан файл `users`. Также, в нем содержится несколько тестовых логинов и паролей.
-- `LOG_FILE_PATH` - файл, куда будут логироваться события. В дальнейшем можно будет его
-монтировать к контейнеру, но сейчас он создается только внутри него.
+`.env` file description:
+- `HOST` - server host.
+- `PORT` - server port.
+- `ALLOW_ANONYMOUS` - should the server allow access for all users. If provided `TRUE` access will be allowed. If provided `FALSE`, access will be allowed only for users in the `USERS_FILE_PATH` file.
+- `USERS_FILE_PATH` - path to the file with logins and passwords. Each line should be in the format `<login>:<password>`. Now you have an example file `users`.
+- `LOG_FILE_PATH` - path to the file, which will contain logs of occurred events. You can mount it to container, but now the file created only inside it.
 
-Некоторые замечания:
-- События логируются в начале попытки их совершить. Если возникла ошибка, то лог останется.
-Например, если при скачивании файла произошла ошибка, лог о попытке скачивания все равно будет.
-- Добавил события `file:rename` т.к. имеется аналогичное на директорию.
-Да и без этого информация о работе с файлами будет неполной.
--  В событиях `dir:rename` и `file:rename` поменял формат. Убрал параметр `path`, добавил параметры
-`from` и `to`. Так будет ясно, какой файл переименовывали.
-- В каждое событие добавил логирование даты в формате unix timestamp.
-- Силами используемой библиотеки мне не удалось достать порт пользователя, только ip адрес.
-Так что сейчас логируется только src_ip. Есть предположение, что порт будет доступен как часть ip адреса, но такого кейса мне поймать не удалось.
-- В некоторых моментах могут возникнуть ошибки при работе с файловой системой. Сейчас они не обрабатываются, реализован пока что только положительный сценарий.
+Some notes:
+- Events logs at the start of an event. If something fails, a log will be kept. For example, if download fails.
+- I have added the `file:rename` event because directories have the same.
+- I have changed the format of `dir:rename` and `file:rename` events. `path` parameter was removed. `from` and `to` parameters have been added. In that case, we will know which file was renamed.
+- I have added the unix timestamp of the event to the log.
+- The program doesn't catch all possible errors. For example, errors with the file system. At this point, I did only happy path.
